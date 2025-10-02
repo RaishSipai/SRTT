@@ -13,5 +13,9 @@ UCLASS()
 class SRTT_API USRTTFrontChaosVehicleWheel : public UChaosVehicleWheel
 {
 	GENERATED_BODY()
-	
+
+public:
+	// Constructor declaration was missing. It is now added.
+	USRTTFrontChaosVehicleWheel();
+
 };
