@@ -13,9 +13,5 @@ UCLASS()
 class SRTT_API USRTTFrontChaosVehicleWheel : public UChaosVehicleWheel
 {
 	GENERATED_BODY()
-
-public:
-
-	USRTTFrontChaosVehicleWheel();
 	
 };

@@ -14,6 +14,4 @@ class SRTT_API USRTTRearChaosVehicleWheel : public UChaosVehicleWheel
 {
 	GENERATED_BODY()
 	
-public:
-	USRTTRearChaosVehicleWheel();
 };

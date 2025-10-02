@@ -13,11 +13,5 @@ UCLASS()
 class SRTT_API USRTTGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
-
-public:
-	virtual void Init() override;
 	
-private:
-	/** Load game settings from config files */
-	void LoadGameSettings();
 };

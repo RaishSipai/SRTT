@@ -8,7 +8,17 @@ public class SRTT : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "ChaosVehicles", "PhysicsCore", "UMG", "NetCore", "OnlineSubsystem" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core",
+			"CoreUObject",
+			"Engine",
+			"InputCore",
+			"EnhancedInput",
+			"ChaosVehicles",
+			"PhysicsCore",
+			"UMG",
+			"NetCore",
+			"OnlineSubsystem"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

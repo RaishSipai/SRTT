@@ -26,10 +26,6 @@
 		{
 			"Name": "ChaosVehiclesPlugin",
 			"Enabled": true
-		},
-		{
-			"Name": "AudioMotorSim",
-			"Enabled": true
 		}
 	]
 }
