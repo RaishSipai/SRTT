@@ -1,27 +1,61 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "SRTTProjectile.h"
+#include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
+#include "SRTTDamageInterface.h" // Include our damage interface
 
-// Sets default values
 ASRTTProjectile::ASRTTProjectile()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+	bReplicates = true;
 
+	// Use a sphere as a simple collision representation.
+	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComp"));
+	CollisionComp->InitSphereRadius(5.0f);
+	CollisionComp->SetCollisionProfileName("Projectile");
+	CollisionComp->OnComponentHit.AddDynamic(this, &ASRTTProjectile::OnHit);
+	RootComponent = CollisionComp;
+
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
+	MeshComp->SetupAttachment(RootComponent);
+
+	// Use a ProjectileMovementComponent to govern this projectile's movement.
+	ProjectileMovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComp"));
+	ProjectileMovementComp->InitialSpeed = 3000.f;
+	ProjectileMovementComp->MaxSpeed = 3000.f;
+	ProjectileMovementComp->bRotationFollowsVelocity = true;
+	ProjectileMovementComp->bShouldBounce = true;
 }
 
-// Called when the game starts or when spawned
 void ASRTTProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	// Destroy the projectile after 3 seconds.
+	SetLifeSpan(3.0f);
 }
 
-// Called every frame
-void ASRTTProjectile::Tick(float DeltaTime)
+void ASRTTProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	Super::Tick(DeltaTime);
+	// Only run damage logic on the server.
+	if (GetLocalRole() == ENetRole::ROLE_Authority)
+	{
+		// Make sure we didn't hit ourselves or the actor that spawned us.
+		if (OtherActor && OtherActor != this && OtherActor != GetOwner())
+		{
+			// --- DECOUPLED DAMAGE ---
+			// Check if the actor we hit implements our damage interface.
+			if (OtherActor->Implements<USRTTDamageInterface>())
+			{
+				// If it does, call the interface function.
+				// This works for vehicles, destructible barrels, anything that implements the interface.
+				ISRTTDamageInterface::Execute_ApplyVehicleDamage(OtherActor, 20.f, Hit, GetInstigatorController(), this);
+			}
+		}
+	}
 
+	// Destroy the projectile on impact.
+	Destroy();
 }
-

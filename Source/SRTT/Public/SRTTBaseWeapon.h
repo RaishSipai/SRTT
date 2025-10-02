@@ -6,21 +6,48 @@
 #include "GameFramework/Actor.h"
 #include "SRTTBaseWeapon.generated.h"
 
+class ASRTTProjectile;
+
 UCLASS()
 class SRTT_API ASRTTBaseWeapon : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
+
+public:
 	ASRTTBaseWeapon();
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<USceneComponent> MuzzleLocation;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	// The class of projectile this weapon should fire. Set in Blueprint.
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<ASRTTProjectile> ProjectileClass;
 
+	// Shots per second.
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float FireRate;
+
+	// The base damage of a single shot.
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	float BaseDamage;
+
+	// Timer handle for automatic fire.
+	FTimerHandle TimerHandle_AutomaticFire;
+
+	// Is the player currently holding down the fire button?
+	bool bWantsToFire;
+
+public:
+	// Called by the WeaponSystemComponent.
+	void StartFire();
+	void StopFire();
+
+protected:
+	// The actual function that fires a single shot.
+	void Fire();
+
+	// Server RPC for firing. The client asks the server to fire.
+	UFUNCTION(Server, Reliable)
+	void ServerFire();
 };

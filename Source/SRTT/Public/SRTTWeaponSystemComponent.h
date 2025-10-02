@@ -6,23 +6,35 @@
 #include "Components/ActorComponent.h"
 #include "SRTTWeaponSystemComponent.generated.h"
 
+class ASRTTBaseWeapon;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class SRTT_API USRTTWeaponSystemComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
+public:
 	USRTTWeaponSystemComponent();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	// This will hold the Blueprint classes of the weapons we want to equip by default.
+	UPROPERTY(EditDefaultsOnly, Category = "WeaponSystem")
+	TArray<TSubclassOf<ASRTTBaseWeapon>> DefaultWeaponClasses;
 
-		
+	// An array to hold the actual weapon instances that are spawned at runtime.
+	UPROPERTY(VisibleInstanceOnly, Category = "WeaponSystem")
+	TArray<TObjectPtr<ASRTTBaseWeapon>> EquippedWeapons;
+
+	// The index of the currently active weapon in the EquippedWeapons array.
+	UPROPERTY(VisibleInstanceOnly, Replicated, Category = "WeaponSystem")
+	int32 CurrentWeaponIndex;
+
+public:
+	/** Called by the Pawn to start firing the current weapon. */
+	void StartFire();
+
+	/** Called by the Pawn to stop firing the current weapon. */
+	void StopFire();
 };
