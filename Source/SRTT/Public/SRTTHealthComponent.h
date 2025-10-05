@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Net/UnrealNetwork.h" // Required for networking
+#include "Net/UnrealNetwork.h"
 #include "SRTTHealthComponent.generated.h"
 
 // The delegate that will be broadcast when health changes.

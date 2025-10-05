@@ -16,14 +16,14 @@ public:
 	// This allows a UI artist to design the look and feel without needing to touch C++ code.
 
 	/** Called to update the gear display on the HUD. */
-	UFUNCTION(BlueprintImplementableEvent, Category = "UI|Updates")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "UI|Updates")
 	void UpdateGear(int32 NewGear);
 
 	/** Called to update the speedometer display on the HUD. */
-	UFUNCTION(BlueprintImplementableEvent, Category = "UI|Updates")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "UI|Updates")
 	void UpdateSpeed(float NewSpeed);
 
 	/** Called to update the health bar display on the HUD. */
-	UFUNCTION(BlueprintImplementableEvent, Category = "UI|Updates")
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "UI|Updates")
 	void UpdateHealth(float CurrentHealth, float MaxHealth);
 };

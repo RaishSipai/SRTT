@@ -13,5 +13,9 @@ UCLASS()
 class SRTT_API ASRTTGameMode : public AGameMode
 {
 	GENERATED_BODY()
+
+public:
+
+	ASRTTGameMode();
 	
 };

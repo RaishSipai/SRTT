@@ -18,7 +18,7 @@ USRTTGearboxComponent::USRTTGearboxComponent()
 	ClutchPosition = 0.0f;
 
 	// Default gear ratios. Index 0=Reverse, 1=1st Gear, etc.
-	GearRatios = { -2.9f, 2.66f, 1.78f, 1.3f, 1.0f, 0.74f, 0.5f };
+	GearRatios = { 2.9f, 2.66f, 1.78f, 1.3f, 1.0f, 0.74f, 0.5f };
 }
 
 

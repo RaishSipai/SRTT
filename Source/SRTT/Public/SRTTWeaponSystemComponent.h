@@ -37,4 +37,6 @@ public:
 
 	/** Called by the Pawn to stop firing the current weapon. */
 	void StopFire();
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

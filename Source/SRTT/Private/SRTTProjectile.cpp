@@ -23,10 +23,11 @@ ASRTTProjectile::ASRTTProjectile()
 
 	// Use a ProjectileMovementComponent to govern this projectile's movement.
 	ProjectileMovementComp = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComp"));
-	ProjectileMovementComp->InitialSpeed = 3000.f;
-	ProjectileMovementComp->MaxSpeed = 3000.f;
+	ProjectileMovementComp->InitialSpeed = 20000.0f;
+	ProjectileMovementComp->MaxSpeed = 20000.0f;
 	ProjectileMovementComp->bRotationFollowsVelocity = true;
-	ProjectileMovementComp->bShouldBounce = true;
+	ProjectileMovementComp->bShouldBounce = false;
+	ProjectileMovementComp->ProjectileGravityScale = 0.f;
 }
 
 void ASRTTProjectile::BeginPlay()

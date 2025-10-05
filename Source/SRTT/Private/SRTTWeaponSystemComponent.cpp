@@ -29,11 +29,14 @@ void USRTTWeaponSystemComponent::BeginPlay()
 			if (WeaponClass)
 			{
 				ASRTTBaseWeapon* NewWeapon = GetWorld()->SpawnActor<ASRTTBaseWeapon>(WeaponClass, SpawnParams);
-				EquippedWeapons.Add(NewWeapon);
+				if (NewWeapon)
+				{
+					EquippedWeapons.Add(NewWeapon);
 
-				// TODO: Attach weapon to a specific socket on the vehicle mesh.
-				// For now, we'll just attach to the root.
-				NewWeapon->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+					// TODO: Attach weapon to a specific socket on the vehicle mesh.
+					// For now, we'll just attach to the root.
+					NewWeapon->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+				}
 			}
 		}
 	}
@@ -44,10 +47,8 @@ void USRTTWeaponSystemComponent::StartFire()
 	// Check if we have a valid weapon at the current index.
 	if (EquippedWeapons.IsValidIndex(CurrentWeaponIndex))
 	{
-		ASRTTBaseWeapon* CurrentWeapon = EquippedWeapons[CurrentWeaponIndex];
-		if (CurrentWeapon)
+		if (ASRTTBaseWeapon* CurrentWeapon = EquippedWeapons[CurrentWeaponIndex])
 		{
-			// Tell the current weapon to start firing.
 			CurrentWeapon->StartFire();
 		}
 	}

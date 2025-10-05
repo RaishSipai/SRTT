@@ -9,6 +9,7 @@
 
 class USRTTHealthComponent;
 class USRTTGearboxComponent;
+class USRTTWeaponSystemComponent;
 class USpringArmComponent;
 class UCameraComponent;
 
@@ -28,6 +29,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USRTTGearboxComponent> GearboxComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<USRTTWeaponSystemComponent> WeaponSystemComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USpringArmComponent> SpringArmComponent;

@@ -3,6 +3,7 @@
 #include "SRTTWheeledVehiclePawn.h"
 #include "SRTTHealthComponent.h"
 #include "SRTTGearboxComponent.h"
+#include "SRTTWeaponSystemComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
@@ -12,6 +13,7 @@ ASRTTWheeledVehiclePawn::ASRTTWheeledVehiclePawn()
 	// Create all the components that make up our vehicle.
 	HealthComponent = CreateDefaultSubobject<USRTTHealthComponent>(TEXT("HealthComponent"));
 	GearboxComponent = CreateDefaultSubobject<USRTTGearboxComponent>(TEXT("GearboxComponent"));
+	WeaponSystemComponent = CreateDefaultSubobject<USRTTWeaponSystemComponent>(TEXT("WeaponSystemComponent"));
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArmComponent->SetupAttachment(RootComponent);

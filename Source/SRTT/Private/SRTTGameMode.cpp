@@ -3,3 +3,6 @@
 
 #include "SRTTGameMode.h"
 
+ASRTTGameMode::ASRTTGameMode()
+{
+}

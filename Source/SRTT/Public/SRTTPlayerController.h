@@ -44,12 +44,24 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> ClutchAction;
 
-	// --- Action Inputs ---
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> GearUpAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> GearDownAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> FireAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> LookAction;
+
+	// --- FEEDBACK ---
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Feedback")
+	TSubclassOf<UCameraShakeBase> ShiftFailCameraShake;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input|Feedback")
+	TObjectPtr<UForceFeedbackEffect> ShiftFailForceFeedback;
 
 private:
 	// --- INPUT HANDLER FUNCTIONS ---
@@ -60,22 +72,20 @@ private:
 	void HandleHandbrake(const FInputActionValue& Value);
 
 	// Handlers for when input keys are released
-	void HandleThrottleReleased(const FInputActionValue& Value);
-	void HandleSteerReleased(const FInputActionValue& Value);
-	void HandleBrakeReleased(const FInputActionValue& Value);
-	void HandleHandbrakeReleased(const FInputActionValue& Value);
+	void HandleThrottleCompleted(const FInputActionValue& Value);
+	void HandleSteerCompleted(const FInputActionValue& Value);
+	void HandleBrakeCompleted(const FInputActionValue& Value);
+	void HandleHandbrakeCompleted(const FInputActionValue& Value);
+	void HandleClutchCompleted(const FInputActionValue& Value);
 
 	// Manual Transmission
 	void HandleClutch(const FInputActionValue& Value);
 	void HandleGearUp(const FInputActionValue& Value);
 	void HandleGearDown(const FInputActionValue& Value);
 
-	// --- FEEDBACK ---
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Feedback")
-	TSubclassOf<UCameraShakeBase> ShiftFailCameraShake;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input|Feedback")
-	TObjectPtr<UForceFeedbackEffect> ShiftFailForceFeedback;
+	void HandleLook(const FInputActionValue& Value);
+	void HandleFireStarted();
+	void HandleFireCompleted();
 
 	UFUNCTION()
 	void OnShiftFailed();
