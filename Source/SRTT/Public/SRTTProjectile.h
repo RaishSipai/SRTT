@@ -6,31 +6,21 @@
 #include "GameFramework/Actor.h"
 #include "SRTTProjectile.generated.h"
 
-class USphereComponent;
-class UStaticMeshComponent;
-class UProjectileMovementComponent;
-
 UCLASS()
 class SRTT_API ASRTTProjectile : public AActor
 {
 	GENERATED_BODY()
-
-public:
+	
+public:	
+	// Sets default values for this actor's properties
 	ASRTTProjectile();
 
 protected:
+	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<USphereComponent> CollisionComp;
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UStaticMeshComponent> MeshComp;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComp;
-
-	// The function that is called when this projectile hits something.
-	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };

@@ -1,68 +1,27 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "SRTTBaseWeapon.h"
-#include "SRTTProjectile.h"
-#include "GameFramework/Pawn.h"
 
+#include "SRTTBaseWeapon.h"
+
+// Sets default values
 ASRTTBaseWeapon::ASRTTBaseWeapon()
 {
-	PrimaryActorTick.bCanEverTick = false;
-	bReplicates = true;
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
 
-	MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
-	RootComponent = MuzzleLocation;
-
-	FireRate = 10.0f;
-	BaseDamage = 20.0f;
-	bWantsToFire = false;
 }
 
-void ASRTTBaseWeapon::StartFire()
+// Called when the game starts or when spawned
+void ASRTTBaseWeapon::BeginPlay()
 {
-	bWantsToFire = true;
-	// Calculate the time between shots.
-	const float TimeBetweenShots = 1.0f / FireRate;
-	// Start a looping timer to call the Fire() function.
-	GetWorldTimerManager().SetTimer(TimerHandle_AutomaticFire, this, &ASRTTBaseWeapon::Fire, TimeBetweenShots, true, 0.0f);
+	Super::BeginPlay();
+	
 }
 
-void ASRTTBaseWeapon::StopFire()
+// Called every frame
+void ASRTTBaseWeapon::Tick(float DeltaTime)
 {
-	bWantsToFire = false;
-	// Clear the timer to stop automatic fire.
-	GetWorldTimerManager().ClearTimer(TimerHandle_AutomaticFire);
+	Super::Tick(DeltaTime);
+
 }
 
-void ASRTTBaseWeapon::Fire()
-{
-	// On the client, we just call the Server RPC.
-	// We also do a local check of bWantsToFire to stop the timer immediately if needed.
-	if (GetLocalRole() < ENetRole::ROLE_Authority || !bWantsToFire)
-	{
-		if (!bWantsToFire)
-		{
-			GetWorldTimerManager().ClearTimer(TimerHandle_AutomaticFire);
-		}
-		ServerFire();
-	}
-
-	// On the server, we execute the firing logic directly.
-	if (GetLocalRole() == ENetRole::ROLE_Authority)
-	{
-		ServerFire_Implementation();
-	}
-}
-
-void ASRTTBaseWeapon::ServerFire_Implementation()
-{
-	if (ProjectileClass)
-	{
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = GetOwner();
-		SpawnParams.Instigator = Cast<APawn>(GetOwner());
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-		// Spawn the projectile.
-		GetWorld()->SpawnActor<ASRTTProjectile>(ProjectileClass, MuzzleLocation->GetComponentLocation(), MuzzleLocation->GetComponentRotation(), SpawnParams);
-	}
-}
