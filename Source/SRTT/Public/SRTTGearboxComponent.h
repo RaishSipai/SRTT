@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "SRTTGearBoxComponent.generated.h"
+#include "SRTTGearboxComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class SRTT_API USRTTGearBoxComponent : public UActorComponent
+class SRTT_API USRTTGearboxComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	USRTTGearBoxComponent();
+	USRTTGearboxComponent();
 
 protected:
 	// Called when the game starts

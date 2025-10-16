@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "ChaosVehicleWheel.h"
-#include "SRTTFrontChaosVehicleWheel.generated.h"
+#include "SRTTRRVehicleWheel.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SRTT_API USRTTFrontChaosVehicleWheel : public UChaosVehicleWheel
+class SRTT_API USRTTRRVehicleWheel : public UChaosVehicleWheel
 {
 	GENERATED_BODY()
 	

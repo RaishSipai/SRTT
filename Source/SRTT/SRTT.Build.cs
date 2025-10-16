@@ -9,19 +9,24 @@ public class SRTT : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] 
-		{ 
-			"Core", 
-			"CoreUObject", 
-			"Engine", 
-			"InputCore",
-			"EnhancedInput",
-			"UMG",
-			// CRITICAL FIX: Adding the necessary Chaos Vehicles modules as per UE 5.6 requirements
-			"ChaosVehicles",
-			"ChaosVehiclesCore",
-			"ChaosVehiclesEngine"
-		});
+		{
+            "Core",
+            "CoreUObject",
+            "Engine",
+            "InputCore",
+            "EnhancedInput",
+            "ChaosVehicles",
+            "UMG",
+            "Slate",
+            "SlateCore",
+            "OnlineSubsystem",
+            "OnlineSubsystemUtils"
+        });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+		PrivateDependencyModuleNames.AddRange(new string[]
+        {
+            "AIModule",
+            "NavigationSystem"
+        });
 	}
 }

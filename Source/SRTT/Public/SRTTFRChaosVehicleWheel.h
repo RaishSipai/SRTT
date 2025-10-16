@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameStateBase.h"
-#include "SRTTGameStateBase.generated.h"
+#include "ChaosVehicleWheel.h"
+#include "SRTTFRChaosVehicleWheel.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SRTT_API ASRTTGameStateBase : public AGameStateBase
+class SRTT_API USRTTFRChaosVehicleWheel : public UChaosVehicleWheel
 {
 	GENERATED_BODY()
 	
