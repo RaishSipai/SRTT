@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
-#include "SRTTSessionSubsystem.generated.h"
+#include "ChaosVehicleWheel.h"
+#include "SRTTRRChaosVehicleWheel.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SRTT_API USRTTSessionSubsystem : public UGameInstanceSubsystem
+class SRTT_API USRTTRRChaosVehicleWheel : public UChaosVehicleWheel
 {
 	GENERATED_BODY()
 	
