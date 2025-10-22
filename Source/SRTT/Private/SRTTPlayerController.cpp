@@ -6,6 +6,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Blueprint/UserWidget.h"
+#include "Camera/CameraShakeBase.h"
+#include "GameFramework/ForceFeedbackEffect.h"
 
 void ASRTTPlayerController::OnPossess(APawn* InPawn)
 {
@@ -54,10 +56,12 @@ void ASRTTPlayerController::SetupInputComponent()
 		// Bind driving actions
 		EnhancedInputComponent->BindAction(ThrottleAction, ETriggerEvent::Triggered, this, &ASRTTPlayerController::HandleThrottle);
 		EnhancedInputComponent->BindAction(SteerAction, ETriggerEvent::Triggered, this, &ASRTTPlayerController::HandleSteer);
+		EnhancedInputComponent->BindAction(ClutchAction, ETriggerEvent::Triggered, this, &ASRTTPlayerController::HandleClutch);
 		EnhancedInputComponent->BindAction(GearUpAction, ETriggerEvent::Triggered, this, &ASRTTPlayerController::HandleGearUp);
 		EnhancedInputComponent->BindAction(GearDownAction, ETriggerEvent::Triggered, this, &ASRTTPlayerController::HandleGearDown);
 		EnhancedInputComponent->BindAction(BrakeAction, ETriggerEvent::Triggered, this, &ASRTTPlayerController::HandleBrake);
 		EnhancedInputComponent->BindAction(ThrottleAction, ETriggerEvent::Completed, this, &ASRTTPlayerController::HandleThrottle);
+		EnhancedInputComponent->BindAction(ClutchAction, ETriggerEvent::Completed, this, &ASRTTPlayerController::HandleClutch);
 		EnhancedInputComponent->BindAction(SteerAction, ETriggerEvent::Completed, this, &ASRTTPlayerController::HandleSteer);
 		EnhancedInputComponent->BindAction(BrakeAction, ETriggerEvent::Completed, this, &ASRTTPlayerController::HandleBrake);
 
@@ -80,6 +84,28 @@ void ASRTTPlayerController::HandleSteer(const FInputActionValue& ActionValue)
 {
 	const float Value = ActionValue.Get<float>();
 	IControllableVehicle::Execute_ApplySteer(PossessedVehicle.GetObject(), Value);
+}
+
+void ASRTTPlayerController::HandleClutch(const FInputActionValue& ActionValue)
+{
+	if (PossessedVehicle)
+	{
+		const float Value = ActionValue.Get<float>();
+		IControllableVehicle::Execute_ApplyClutch(PossessedVehicle.GetObject(), Value);
+	}
+}
+
+void ASRTTPlayerController::TriggerFailedShiftEffect_Implementation()
+{
+	if (FailedShiftCameraShake)
+	{
+		ClientStartCameraShake(FailedShiftCameraShake);
+	}
+	if (FailedShiftForceFeedback)
+	{
+		// Note: PlayHapticEffect is the modern equivalent for force feedback
+		ClientPlayForceFeedback(FailedShiftForceFeedback);
+	}
 }
 
 void ASRTTPlayerController::HandleGearUp(const FInputActionValue& ActionValue)

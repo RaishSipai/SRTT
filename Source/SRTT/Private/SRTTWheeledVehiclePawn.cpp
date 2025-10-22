@@ -7,7 +7,6 @@
 #include "Camera/CameraComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 
-
 ASRTTWheeledVehiclePawn::ASRTTWheeledVehiclePawn()
 {
 	// Get the existing Chaos Vehicle Movement Component from the base class
@@ -24,6 +23,13 @@ ASRTTWheeledVehiclePawn::ASRTTWheeledVehiclePawn()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false; // The camera should not rotate relative to the arm
+
+	// --- INITIALIZE NEW VARIABLES ---
+	ClutchInput = 0.0f;
+	PreClutchGear = 1; // Default to 1st gear
+	bIsClutchEngaged = false;
+	NeutralEngineMOIMultiplier = 20.0f; // Default value, can be tweaked
+	ClutchEngageThreshold = 0.9f;
 }
 
 void ASRTTWheeledVehiclePawn::ApplyThrottle_Implementation(float Value)
@@ -53,46 +59,120 @@ void ASRTTWheeledVehiclePawn::ApplyBrake_Implementation(float Value)
 	}
 }
 
+void ASRTTWheeledVehiclePawn::ApplyClutch_Implementation(float Value)
+{
+	ClutchInput = Value;
+	const bool bIsClutchPressed = (ClutchInput >= ClutchEngageThreshold);
+
+	if (bIsClutchPressed && !bIsClutchEngaged)
+	{
+		// --- CLUTCH WAS JUST PRESSED ---
+		bIsClutchEngaged = true;
+
+		// 1. Remember our current gear
+		PreClutchGear = ChaosVehicleMovementComponent->GetCurrentGear();
+
+		// 2. Shift to Neutral
+		ChaosVehicleMovementComponent->SetTargetGear(0, true); // 0 is Neutral
+
+		// 3. Make engine rev faster
+		EngageNeutralEngineState();
+	}
+	else if (!bIsClutchPressed && bIsClutchEngaged)
+	{
+		// --- CLUTCH WAS JUST RELEASED ---
+		bIsClutchEngaged = false;
+
+		// 1. Shift back to the gear we were in
+		ChaosVehicleMovementComponent->SetTargetGear(PreClutchGear, true);
+
+		// 2. Restore engine to normal
+		DisengageNeutralEngineState();
+	}
+}
+
+// --- MODIFY EXISTING SHIFT FUNCTIONS ---
+
 void ASRTTWheeledVehiclePawn::ShiftGearUp_Implementation()
 {
-	if (ChaosVehicleMovementComponent)
+	// --- FAILED SHIFT CHECK ---
+	if (!bIsClutchEngaged) // Check if clutch is NOT pressed
 	{
-		const int32 CurrentGear = ChaosVehicleMovementComponent->GetCurrentGear();
-
-		// --- !!! THIS IS THE CORRECTED LINE FOR MAX GEAR !!! ---
-		// We get the number of forward gears from the TransmissionSetup's array
-		const int32 MaxGear = ChaosVehicleMovementComponent->TransmissionSetup.ForwardGearRatios.Num();
-
-		// Calculate the target gear, clamping it between -1 (Reverse) and MaxGear
-		const int32 TargetGear = FMath::Clamp(CurrentGear + 1, -1, MaxGear);
-
-		ChaosVehicleMovementComponent->SetTargetGear(TargetGear, true);
+		// Get the controller (which implements the interface) and call the feedback function
+		if (AController* MyController = GetController())
+		{
+			if (MyController->GetClass()->ImplementsInterface(UControllableVehicle::StaticClass()))
+			{
+				IControllableVehicle::Execute_TriggerFailedShiftEffect(MyController);
+			}
+		}
+		return; // Stop here, do not change gear
 	}
+	// --- REGULAR SHIFT LOGIC ---
+	const int32 CurrentGear = ChaosVehicleMovementComponent->GetCurrentGear();
+	const int32 MaxGear = ChaosVehicleMovementComponent->TransmissionSetup.ForwardGearRatios.Num();
+	const int32 TargetGear = FMath::Clamp(CurrentGear + 1, -1, MaxGear);
+
+	// We've shifted, so update the "PreClutchGear" to our new gear
+	PreClutchGear = TargetGear;
+	ChaosVehicleMovementComponent->SetTargetGear(TargetGear, true);
 }
 
 void ASRTTWheeledVehiclePawn::ShiftGearDown_Implementation()
 {
-	if (ChaosVehicleMovementComponent)
+	// --- FAILED SHIFT CHECK ---
+	if (!bIsClutchEngaged) // Check if clutch is NOT pressed
 	{
-		const int32 CurrentGear = ChaosVehicleMovementComponent->GetCurrentGear();
-
-		// --- !!! THIS IS THE CORRECTED LINE FOR MAX GEAR !!! ---
-		const int32 MaxGear = ChaosVehicleMovementComponent->TransmissionSetup.ForwardGearRatios.Num();
-
-		// Calculate the target gear, clamping it between -1 (Reverse) and MaxGear
-		const int32 TargetGear = FMath::Clamp(CurrentGear - 1, -1, MaxGear);
-
-		ChaosVehicleMovementComponent->SetTargetGear(TargetGear, true);
+		if (AController* MyController = GetController())
+		{
+			if (MyController->GetClass()->ImplementsInterface(UControllableVehicle::StaticClass()))
+			{
+				IControllableVehicle::Execute_TriggerFailedShiftEffect(MyController);
+			}
+		}
+		return; // Stop here, do not change gear
 	}
+
+	// --- REGULAR SHIFT LOGIC ---
+	const int32 CurrentGear = ChaosVehicleMovementComponent->GetCurrentGear();
+	const int32 MaxGear = ChaosVehicleMovementComponent->TransmissionSetup.ForwardGearRatios.Num();
+	const int32 TargetGear = FMath::Clamp(CurrentGear - 1, -1, MaxGear);
+
+	// We've shifted, so update the "PreClutchGear" to our new gear
+	PreClutchGear = TargetGear;
+	ChaosVehicleMovementComponent->SetTargetGear(TargetGear, true);
+}
+
+// --- ADD NEW HELPER FUNCTION IMPLEMENTATIONS ---
+
+void ASRTTWheeledVehiclePawn::EngageNeutralEngineState()
+{
+	// Multiply the values to make the engine more responsive
+	ChaosVehicleMovementComponent->EngineSetup.EngineRevUpMOI *= NeutralEngineMOIMultiplier;
+	ChaosVehicleMovementComponent->EngineSetup.EngineRevDownRate *= NeutralEngineMOIMultiplier;
+}
+
+void ASRTTWheeledVehiclePawn::DisengageNeutralEngineState()
+{
+	// Divide by the same multiplier to return to the default values
+	// Add a check to prevent divide-by-zero
+	ChaosVehicleMovementComponent->EngineSetup.EngineRevUpMOI /= NeutralEngineMOIMultiplier;
+	ChaosVehicleMovementComponent->EngineSetup.EngineRevDownRate /= NeutralEngineMOIMultiplier;
+}
+
+// --- ADD EMPTY OVERRIDE FOR FEEDBACK ---
+// This function is handled by the controller, but the pawn
+// must have the override to satisfy the interface.
+void ASRTTWheeledVehiclePawn::TriggerFailedShiftEffect_Implementation()
+{
+	// This is intentionally blank.
+	// The pawn calls this, but the controller implements it.
 }
 
 void ASRTTWheeledVehiclePawn::SetHandbrake_Implementation(bool bIsEngaged)
 {
-	if (ChaosVehicleMovementComponent)
-	{
-		// Set the handbrake state
-		ChaosVehicleMovementComponent->SetHandbrakeInput(bIsEngaged);
-	}
+	// Set the handbrake state
+	ChaosVehicleMovementComponent->SetHandbrakeInput(bIsEngaged);
 }
 
 void ASRTTWheeledVehiclePawn::ApplyLook_Implementation(const FVector2D& LookAxisVector)
@@ -103,23 +183,15 @@ void ASRTTWheeledVehiclePawn::ApplyLook_Implementation(const FVector2D& LookAxis
 
 float ASRTTWheeledVehiclePawn::GetSpeedKPH_Implementation() const
 {
-	if (ChaosVehicleMovementComponent)
-	{
-		// GetForwardSpeed() returns speed in cm/s. 
-		// (cm/s * 0.01) = m/s
-		// (m/s * 3.6) = km/h
-		return ChaosVehicleMovementComponent->GetForwardSpeed() * 0.036f;
-	}
-	return 0.0f;
+	// GetForwardSpeed() returns speed in cm/s. 
+	// (cm/s * 0.01) = m/s
+	// (m/s * 3.6) = km/h
+	return ChaosVehicleMovementComponent->GetForwardSpeed() * 0.036f;
 }
 
 float ASRTTWheeledVehiclePawn::GetEngineRPM_Implementation() const
 {
-	if (ChaosVehicleMovementComponent)
-	{
-		return ChaosVehicleMovementComponent->GetEngineRotationSpeed();
-	}
-	return 0.0f;
+	return ChaosVehicleMovementComponent->GetEngineRotationSpeed();
 }
 
 FString ASRTTWheeledVehiclePawn::GetGearAsString_Implementation() const

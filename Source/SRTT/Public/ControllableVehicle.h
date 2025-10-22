@@ -39,6 +39,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Vehicle Control")
 	void ShiftGearDown();
 
+	/** Applies clutch input to the vehicle */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Vehicle Control")
+	void ApplyClutch(float Value);
+
 	// All controllable vehicles must be able to apply brakes.
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Vehicle Control")
 	void ApplyBrake(float Value);
@@ -50,5 +54,11 @@ public:
 	// All controllable vehicles must respond to camera look input.
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Vehicle Control")
 	void ApplyLook(const FVector2D& LookAxisVector);
+
+	/** * Called by the pawn to tell the controller to play feedback effects
+	 * for a failed gear shift.
+	 */
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Vehicle Control")
+	void TriggerFailedShiftEffect();
 };
 

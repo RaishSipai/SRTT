@@ -34,6 +34,34 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UChaosWheeledVehicleMovementComponent> ChaosVehicleMovementComponent;
 
+	/** The current clutch input (0.0 to 1.0) */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Vehicle State")
+	float ClutchInput;
+
+	/** The gear the vehicle was in before the clutch was pressed */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Vehicle State")
+	int32 PreClutchGear;
+
+	/** Is the clutch fully pressed (past the 0.9 threshold)? */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Vehicle State")
+	bool bIsClutchEngaged;
+
+	/** Multiplier for engine responsiveness when in neutral */
+	UPROPERTY(EditAnywhere, Category = "Vehicle Setup|Engine")
+	float NeutralEngineMOIMultiplier;
+
+	/** Threshold for clutch press to be considered "engaged" */
+	UPROPERTY(EditAnywhere, Category = "Vehicle Setup|Clutch")
+	float ClutchEngageThreshold;
+
+private:
+
+	/** Internal function to modify engine properties for neutral revving */
+	void EngageNeutralEngineState();
+
+	/** Internal function to restore engine properties */
+	void DisengageNeutralEngineState();
+
 public:
 	// --- IControllableVehicle Interface Implementation ---
 	// These are the functions that actually perform the actions defined in the contract.
@@ -45,6 +73,10 @@ public:
 	virtual void ApplyBrake_Implementation(float Value) override;
 	virtual void SetHandbrake_Implementation(bool bIsEngaged) override;
 	virtual void ApplyLook_Implementation(const FVector2D& LookAxisVector) override;
+
+	// --- ADD CLUTCH OVERRIDE ---
+	virtual void ApplyClutch_Implementation(float Value) override;
+	virtual void TriggerFailedShiftEffect_Implementation() override;
 
 	// --- IVehicleDataInterface Interface Implementation ---
 	virtual float GetSpeedKPH_Implementation() const override;

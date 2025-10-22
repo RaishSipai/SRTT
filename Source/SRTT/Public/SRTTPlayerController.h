@@ -13,6 +13,7 @@ class UInputAction;
 class UInputMappingContext;
 struct FInputActionValue;
 class UUserWidget;
+class UCameraShakeBase;
 
 /**
  * 
@@ -44,6 +45,9 @@ protected:
 	UInputAction* SteerAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> ClutchAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> GearUpAction;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
@@ -66,11 +70,22 @@ protected:
 	UPROPERTY(Transient, BlueprintReadOnly, Category = "HUD")
 	TObjectPtr<UUserWidget> VehicleHUDInstance;
 
+	// FeedBack Assets
+
+	UPROPERTY(EditDefaultsOnly, Category = "Feedback")
+	TSubclassOf<UCameraShakeBase> FailedShiftCameraShake; // <-- ADD THIS
+
+	UPROPERTY(EditDefaultsOnly, Category = "Feedback")
+	TObjectPtr<class UForceFeedbackEffect> FailedShiftForceFeedback;
+
+	virtual void TriggerFailedShiftEffect_Implementation();
+
 private:
 	// --- INPUT HANDLER FUNCTIONS ---
 
 	void HandleThrottle(const FInputActionValue& ActionValue);
 	void HandleSteer(const FInputActionValue& ActionValue);
+	void HandleClutch(const FInputActionValue& ActionValue);
 	void HandleGearUp(const FInputActionValue& ActionValue);
 	void HandleGearDown(const FInputActionValue& ActionValue);
 	void HandleBrake(const FInputActionValue& ActionValue);
