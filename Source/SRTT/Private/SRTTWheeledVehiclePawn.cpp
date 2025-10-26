@@ -108,14 +108,13 @@ void ASRTTWheeledVehiclePawn::ShiftGearUp_Implementation()
 		}
 		return; // Stop here, do not change gear
 	}
-	// --- REGULAR SHIFT LOGIC ---
-	const int32 CurrentGear = ChaosVehicleMovementComponent->GetCurrentGear();
+	
+	// Do NOT change the gear here. Only update the "target" gear
+	// that the clutch will engage when released.
 	const int32 MaxGear = ChaosVehicleMovementComponent->TransmissionSetup.ForwardGearRatios.Num();
-	const int32 TargetGear = FMath::Clamp(CurrentGear + 1, -1, MaxGear);
 
-	// We've shifted, so update the "PreClutchGear" to our new gear
-	PreClutchGear = TargetGear;
-	ChaosVehicleMovementComponent->SetTargetGear(TargetGear, true);
+	// We update PreClutchGear, clamping it between -1 (Reverse) and MaxGear
+	PreClutchGear = FMath::Clamp(PreClutchGear + 1, -1, MaxGear);
 }
 
 void ASRTTWheeledVehiclePawn::ShiftGearDown_Implementation()
@@ -133,14 +132,11 @@ void ASRTTWheeledVehiclePawn::ShiftGearDown_Implementation()
 		return; // Stop here, do not change gear
 	}
 
-	// --- REGULAR SHIFT LOGIC ---
-	const int32 CurrentGear = ChaosVehicleMovementComponent->GetCurrentGear();
+	// Do NOT change the gear here. Only update the "target" gear
 	const int32 MaxGear = ChaosVehicleMovementComponent->TransmissionSetup.ForwardGearRatios.Num();
-	const int32 TargetGear = FMath::Clamp(CurrentGear - 1, -1, MaxGear);
 
-	// We've shifted, so update the "PreClutchGear" to our new gear
-	PreClutchGear = TargetGear;
-	ChaosVehicleMovementComponent->SetTargetGear(TargetGear, true);
+	// We update PreClutchGear, clamping it between -1 (Reverse) and MaxGear
+	PreClutchGear = FMath::Clamp(PreClutchGear - 1, -1, MaxGear);
 }
 
 // --- ADD NEW HELPER FUNCTION IMPLEMENTATIONS ---
