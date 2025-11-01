@@ -10,7 +10,9 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class USkeletalMeshComponent;
 class UChaosWheeledVehicleMovementComponent;
+class UNiagaraComponent;
 
 /**
  * 
@@ -24,6 +26,7 @@ public:
 	ASRTTWheeledVehiclePawn();
 
 protected:
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> SpringArm;
 
@@ -33,6 +36,10 @@ protected:
 	// I've changed this to a TObjectPtr for modern UE5 C++ style. It's a safer pointer.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UChaosWheeledVehicleMovementComponent> ChaosVehicleMovementComponent;
+
+	/** VFX component for gear shift "pops and bangs" */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects")
+	TObjectPtr<UNiagaraComponent> GearShiftVFX;
 
 	/** The current clutch input (0.0 to 1.0) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Vehicle State")
@@ -54,6 +61,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Vehicle Setup|Clutch")
 	float ClutchEngageThreshold;
 
+	FTimerHandle TimerHandle_GearShiftVFX;
+
 private:
 
 	/** Internal function to modify engine properties for neutral revving */
@@ -61,6 +70,12 @@ private:
 
 	/** Internal function to restore engine properties */
 	void DisengageNeutralEngineState();
+
+	/** Activates the gear shift VFX and sets a timer to turn it off */
+	void PlayGearShiftVFX();
+
+	/** Called by a timer to deactivate the gear shift VFX */
+	void DeactivateGearShiftVFX();
 
 public:
 	// --- IControllableVehicle Interface Implementation ---

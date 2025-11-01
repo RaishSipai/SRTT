@@ -6,6 +6,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
+#include "NiagaraComponent.h"
+#include "TimerManager.h"
 
 ASRTTWheeledVehiclePawn::ASRTTWheeledVehiclePawn()
 {
@@ -13,11 +15,18 @@ ASRTTWheeledVehiclePawn::ASRTTWheeledVehiclePawn()
 	ChaosVehicleMovementComponent = Cast<UChaosWheeledVehicleMovementComponent>(GetVehicleMovement());
 	ChaosVehicleMovementComponent->TransmissionSetup.bUseAutomaticGears = false;
 
+	GearShiftVFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("GearShiftVFX"));
+	GearShiftVFX->SetupAttachment(Mesh, TEXT("ExhaustSocket"));
+	GearShiftVFX->bAutoActivate = false;
+
 	// Create the Spring Arm Component
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArm->SetupAttachment(Mesh, TEXT("Root"));
+	SpringArm->SetupAttachment(GetMesh());
 	SpringArm->TargetArmLength = 800.0f;
 	SpringArm->bUsePawnControlRotation = true; // IMPORTANT: This makes the spring arm follow the controller's rotation
+	SpringArm->bEnableCameraLag = true;
+	SpringArm->bEnableCameraRotationLag = true;
+	SpringArm->CameraLagMaxDistance = 200.0f;
 
 	// Create the Camera Component
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -73,7 +82,9 @@ void ASRTTWheeledVehiclePawn::ApplyClutch_Implementation(float Value)
 		PreClutchGear = ChaosVehicleMovementComponent->GetCurrentGear();
 
 		// 2. Shift to Neutral
+		
 		ChaosVehicleMovementComponent->SetTargetGear(0, true); // 0 is Neutral
+		PlayGearShiftVFX();
 
 		// 3. Make engine rev faster
 		EngageNeutralEngineState();
@@ -85,6 +96,8 @@ void ASRTTWheeledVehiclePawn::ApplyClutch_Implementation(float Value)
 
 		// 1. Shift back to the gear we were in
 		ChaosVehicleMovementComponent->SetTargetGear(PreClutchGear, true);
+
+		PlayGearShiftVFX();
 
 		// 2. Restore engine to normal
 		DisengageNeutralEngineState();
@@ -209,5 +222,35 @@ FString ASRTTWheeledVehiclePawn::GetGearAsString_Implementation() const
 		return FString::FromInt(CurrentGear);
 	}
 	return TEXT("N");
+}
+
+void ASRTTWheeledVehiclePawn::PlayGearShiftVFX()
+{
+	if (GearShiftVFX)
+	{
+		// Activate the particle system
+		GearShiftVFX->Activate(true);
+
+		// Clear any old timer that might be running
+		GetWorld()->GetTimerManager().ClearTimer(TimerHandle_GearShiftVFX);
+
+		// Set a new timer to deactivate the effect after 1.0 second
+		GetWorld()->GetTimerManager().SetTimer(
+			TimerHandle_GearShiftVFX,
+			this,
+			&ASRTTWheeledVehiclePawn::DeactivateGearShiftVFX,
+			1.0f,
+			false
+		);
+	}
+}
+
+void ASRTTWheeledVehiclePawn::DeactivateGearShiftVFX()
+{
+	if (GearShiftVFX)
+	{
+		// Stop the particle system
+		GearShiftVFX->Deactivate();
+	}
 }
 

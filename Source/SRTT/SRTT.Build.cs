@@ -19,6 +19,7 @@ public class SRTT : ModuleRules
             "UMG",
             "Slate",
             "SlateCore",
+            "Niagara",
             "OnlineSubsystem",
             "OnlineSubsystemUtils"
         });
